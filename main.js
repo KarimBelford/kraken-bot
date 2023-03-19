@@ -1,7 +1,8 @@
 const KrakenClient = require('kraken-api')
 const axios = require('axios');
 const {
-    getSymbols
+    getSymbols,
+    getTriangularPairs
 } = require('./triFunctions')
 
 const key = '...'; // API Key
@@ -11,4 +12,11 @@ const kraken = new KrakenClient(key, secret);
 const pairsUrl = 'https://api.kraken.com/0/public/AssetPairs'
 
 
-let myCoinPairs = getSymbols(pairsUrl).then(results => console.log(results));
+
+
+const main = async() => {
+    let myCoinPairs = await getSymbols(pairsUrl)
+    let triangularPairs = await getTriangularPairs(pairsUrl)
+    console.log(triangularPairs)
+}
+main()
