@@ -21,26 +21,29 @@ const getTriangularPairs = async (url) => {
             triangularPairs.push([info.base,info.quote])        
         }
         let pairList = triangularPairs
-        //pairList = triangularPairs.slice(0,10)
-        const pairAList = [] 
+        let duplicates = {}
+        let triangularPairsList = {}
+        pairList = triangularPairs.slice(0,100) 
         for(const pairsA of pairList){
             let aBase = pairsA[0]
             let aQuote = pairsA[1]
-            pairAList.push([aBase,aQuote])
+            let pairAsymbol = aBase+aQuote
             let pairAbox = [aBase,aQuote]
+     
             for(const pairsB of pairList){
                     
                 let bBase = pairsB[0]
                 let bQuote = pairsB[1]
-
+                let pairBsymbol = bBase+bQuote
+    
                 if(pairsA !== pairsB){
-                    
                     if(bBase === pairAbox[0] || bBase === pairAbox[1] || bQuote === pairAbox[0] || bQuote === pairAbox[1] ){
                         for(const pairsC of pairList){
                             let cBase = pairsC[0]
                             let cQuote = pairsC[1]
+                            let pairCsymbol = cBase+cQuote
                             if(pairsC !== pairsA && pairsC !==pairsB){
-                                const combineAll = [pairsA,pairsB,pairsC]
+                                const combineAll = [pairAsymbol,pairBsymbol,pairCsymbol]
                                 const pairsBox = [aBase,aQuote,bBase,bQuote,cBase,cQuote]
                                 let countcBase = 0
                                 for(let i = 0; i<6;i++){
@@ -57,15 +60,35 @@ const getTriangularPairs = async (url) => {
                                 }
     
                                 if(countcBase ===2 && countcQoute === 2 && cBase!== cQuote){
-                                    console.log(pairsA,pairsB,pairsC)
+                                    let uniqueItem = combineAll.sort().join('')
+                                    
+                                    if(duplicates[uniqueItem] === undefined){
+                                        duplicates[uniqueItem] = uniqueItem
+                                        
+                                        let pairInfo = {
+                                            "abase": aBase,
+                                            "aQuote": aQuote,
+                                            "bbase": bBase,
+                                            "bQuote": bQuote,
+                                            "cbase": cBase,
+                                            "cQuote": cQuote,
+                                            "pairA": pairAsymbol,
+                                            "pairB": pairBsymbol,
+                                            "pairC": pairCsymbol,
+                                        }
+                                        triangularPairsList[uniqueItem] = pairInfo;                                       
+                                    }
+                                    
+                                   
                                 }
                             }
                         }
                     }
                 }
-            }
-
-        }    
+             }
+    
+        }
+        return triangularPairsList  
       
     } catch (error) {
         console.error('Error getting symbols: ', error);
@@ -73,8 +96,6 @@ const getTriangularPairs = async (url) => {
 
     
 };
-
-getTriangularPairs(pairsUrl);
 
 
 module.exports = {
