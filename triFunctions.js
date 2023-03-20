@@ -1,10 +1,12 @@
 const axios = require('axios');
 const pairsUrl = 'https://api.kraken.com/0/public/AssetPairs'
+const priceDataUrl = 'https://api.kraken.com/0/public/Ticker'
 //get array of pair symbols 
 const getSymbols = async (url) => {
     try {   
       const response = await axios.get(url);
-      const symbols = Object.keys(response.data.result);
+      const symbols = response.data.result;
+      console.log(symbols)
       return symbols;
       
     } catch (error) {
@@ -23,7 +25,7 @@ const getTriangularPairs = async (url) => {
         let pairList = triangularPairs
         let duplicates = {}
         let triangularPairsList = {}
-        pairList = triangularPairs.slice(0,100) 
+       // pairList = triangularPairs.slice(0,100) 
         for(const pairsA of pairList){
             let aBase = pairsA[0]
             let aQuote = pairsA[1]
@@ -97,9 +99,17 @@ const getTriangularPairs = async (url) => {
     
 };
 
+const getPairPrices = async(pair,priceData) => {
+    let pairA = pair.pairA
+    let pairB = pair.pairB
+    let pairC = pair.pairC
+
+    console.log(priceData)
+}
 
 module.exports = {
     getSymbols,
-    getTriangularPairs
+    getTriangularPairs,
+    getPairPrices
 }
 

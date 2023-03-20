@@ -3,7 +3,8 @@ const KrakenClient = require('kraken-api')
 const axios = require('axios');
 const {
     getSymbols,
-    getTriangularPairs
+    getTriangularPairs,
+    getPairPrices
 } = require('./triFunctions')
 
 const key = '...'; // API Key
@@ -11,6 +12,8 @@ const secret = '...'; // API Private Key
 const kraken = new KrakenClient(key, secret);
 
 const pairsUrl = 'https://api.kraken.com/0/public/AssetPairs'
+const priceDataUrl = 'https://api.kraken.com/0/public/Ticker'
+
 
 const logPairs = async () => {
     let getTriPairs = await getTriangularPairs(pairsUrl)
@@ -34,12 +37,37 @@ const logPairs = async () => {
         });
       }
     });
-  }
-  
-logPairs();
+}
 
+const readJsonFile = (filename) => {
+    return new Promise((resolve, reject) => {
+      fs.readFile(filename, 'utf8', (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          try {
+            const obj = JSON.parse(data);
+            resolve(obj);
+          } catch (err) {
+            reject(err);
+          }
+        }
+      });
+    });
+  };
+  
+const step2 = async() => {
+    let structuredPairs = await readJsonFile('./arbitragePairs.json')
+    let pricedata = await getSymbols(priceDataUrl)
+    for(const key in structuredPairs){
+        let pricesDict = await getPairPrices(structuredPairs[key],pricedata)
+    }
+
+}
+
+step2()
 
 const main = async() => {
-    let myCoinPairs = await getSymbols(pairsUrl)
-    let triangularPairs = await getTriangularPairs(pairsUrl)
+    
 }
+
