@@ -4,7 +4,8 @@ const axios = require('axios');
 const {
     getSymbols,
     getTriangularPairs,
-    getPairPrices
+    getPairPrices,
+    calcSurfaceArb
 } = require('./triFunctions')
 
 const key = '...'; // API Key
@@ -62,9 +63,10 @@ const step2 = async() => {
     let structuredPrices = {}
     for(const key in structuredPairs){
         let pricesDict = await getPairPrices(structuredPairs[key],pricedata)
+        
         if(pricesDict!==0){
           structuredPrices[key] = pricesDict
-          console.log(structuredPrices)
+          let surfaceArb = calcSurfaceArb(structuredPairs[key],pricesDict)
         }
     }
 

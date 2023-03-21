@@ -67,11 +67,11 @@ const getTriangularPairs = async (url) => {
                                         duplicates[uniqueItem] = uniqueItem
                                         
                                         let pairInfo = {
-                                            "abase": aBase,
+                                            "aBase": aBase,
                                             "aQuote": aQuote,
-                                            "bbase": bBase,
+                                            "bBase": bBase,
                                             "bQuote": bQuote,
-                                            "cbase": cBase,
+                                            "cBase": cBase,
                                             "cQuote": cQuote,
                                             "pairA": pairAsymbol,
                                             "pairB": pairBsymbol,
@@ -128,16 +128,48 @@ const getPairPrices = async(pair,priceData) => {
             "pairBbid": pairBbid,
             "pairCask": pairCask,
             "pairCbid": pairCbid,
-            "pairA": pairA,
-            "pairB": pairB,
-            "pairC": pairC,
         }
     }
+}
+
+const calcSurfaceArb = async(pair,priceDict) => {
+    let startingAmount = 1;
+    let minSurfaceRate = 0;
+    let surfaceRateDict = {};
+    let contract2 = "";
+    let contract3 = "";
+    let directionTrade1 = "";
+    let directionTrade2 = "";
+    let directionTrade3 = "";
+    let aquiredCoinT2 = "";
+    let aquiredCoinT3 = "";
+    let calculated = 0;
+    //pair info
+    const aBase = pair.aBase
+    const aQuote = pair.aQuote
+    const bBase = pair.bBase
+    const bQuote = pair.bQuote 
+    const cBase = pair.cBase
+    const cQuote = pair.cQuote
+    const pairA = pair.pairA
+    const pairB = pair.pairB
+    const pairC = pair.pairC
+
+    //price info
+    const aAsk = priceDict.pairAask 
+    const aBid = priceDict.pairAbid
+    const bAsk = priceDict.pairBask 
+    const bBid = priceDict.pairBbid
+    const cAsk = priceDict.pairCask 
+    const cBid = priceDict.pairCbid
+
+    console.log(pairA,aAsk*aBid)
 }
 
 module.exports = {
     getSymbols,
     getTriangularPairs,
-    getPairPrices
+    getPairPrices,
+    calcSurfaceArb
 }
 
