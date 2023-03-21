@@ -6,7 +6,6 @@ const getSymbols = async (url) => {
     try {   
       const response = await axios.get(url);
       const symbols = response.data.result;
-      console.log(symbols)
       return symbols;
       
     } catch (error) {
@@ -104,7 +103,36 @@ const getPairPrices = async(pair,priceData) => {
     let pairB = pair.pairB
     let pairC = pair.pairC
 
-    console.log(priceData)
+    let pairAask, pairAbid, pairBask, pairBbid, pairCask, pairCbid;
+    
+    for (const symbol in priceData) {
+        if (symbol === pairA) {
+          pairAask = priceData[symbol].a[0];
+          pairAbid = priceData[symbol].b[0];
+        } else if (symbol === pairB) {
+          pairBask = priceData[symbol].a[0];
+          pairBbid = priceData[symbol].b[0];
+        } else if (symbol === pairC) {
+          pairCask = priceData[symbol].a[0];
+          pairCbid = priceData[symbol].b[0];
+        }        
+      }
+    
+    if (pairAask === undefined || pairAask === '0' || pairAbid === undefined || pairAbid === '0' || pairBask === undefined || pairBask === '0' || pairBbid === undefined || pairBbid === '0' || pairCask === undefined || pairCask === '0' || pairCbid === undefined || pairCbid === '0') {
+        return 0;
+    } else {
+        return {
+            "pairAask": pairAask,
+            "pairAbid": pairAbid,
+            "pairBask": pairBask,
+            "pairBbid": pairBbid,
+            "pairCask": pairCask,
+            "pairCbid": pairCbid,
+            "pairA": pairA,
+            "pairB": pairB,
+            "pairC": pairC,
+        }
+    }
 }
 
 module.exports = {

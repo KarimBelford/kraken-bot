@@ -59,8 +59,13 @@ const readJsonFile = (filename) => {
 const step2 = async() => {
     let structuredPairs = await readJsonFile('./arbitragePairs.json')
     let pricedata = await getSymbols(priceDataUrl)
+    let structuredPrices = {}
     for(const key in structuredPairs){
         let pricesDict = await getPairPrices(structuredPairs[key],pricedata)
+        if(pricesDict!==0){
+          structuredPrices[key] = pricesDict
+          console.log(structuredPrices)
+        }
     }
 
 }
