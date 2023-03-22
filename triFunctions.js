@@ -117,9 +117,13 @@ const getPairPrices = async(pair,priceData) => {
           pairCbid = priceData[symbol].b[0];
         }        
       }
-    
-    if (pairAask === undefined || pairAask === '0' || pairAbid === undefined || pairAbid === '0' || pairBask === undefined || pairBask === '0' || pairBbid === undefined || pairBbid === '0' || pairCask === undefined || pairCask === '0' || pairCbid === undefined || pairCbid === '0') {
+      if (pairAask === undefined || pairAbid === undefined || 
+        pairBask === undefined || pairBbid === undefined || 
+        pairCask === undefined || pairCbid === undefined) {
+        
         return 0;
+    // if (pairAask === undefined || pairAask === '0' || pairAbid === undefined || pairAbid === '0' || pairBask === undefined || pairBask === '0' || pairBbid === undefined || pairBbid === '0' || pairCask === undefined || pairCask === '0' || pairCbid === undefined || pairCbid === '0') {
+    //     return 0;
     } else {
         return {
             "pairAask": pairAask,
@@ -136,34 +140,65 @@ const calcSurfaceArb = async(pair,priceDict) => {
     let startingAmount = 1;
     let minSurfaceRate = 0;
     let surfaceRateDict = {};
-    let contract2 = "";
-    let contract3 = "";
+    let contract1;
+    let contract2;
+    let contract3;
     let directionTrade1 = "";
     let directionTrade2 = "";
     let directionTrade3 = "";
-    let aquiredCoinT2 = "";
-    let aquiredCoinT3 = "";
+    let aquiredCoinT1 = 0;
+    let aquiredCoinT2 = 0;
+    let aquiredCoinT3 = 0;
     let calculated = 0;
     //pair info
-    const aBase = pair.aBase
-    const aQuote = pair.aQuote
-    const bBase = pair.bBase
-    const bQuote = pair.bQuote 
-    const cBase = pair.cBase
-    const cQuote = pair.cQuote
-    const pairA = pair.pairA
-    const pairB = pair.pairB
-    const pairC = pair.pairC
+    const aBase = pair.aBase;
+    const aQuote = pair.aQuote;
+    const bBase = pair.bBase;
+    const bQuote = pair.bQuote;
+    const cBase = pair.cBase;
+    const cQuote = pair.cQuote;
+    const pairA = pair.pairA;
+    const pairB = pair.pairB;
+    const pairC = pair.pairC;
 
     //price info
-    const aAsk = priceDict.pairAask 
-    const aBid = priceDict.pairAbid
-    const bAsk = priceDict.pairBask 
-    const bBid = priceDict.pairBbid
-    const cAsk = priceDict.pairCask 
-    const cBid = priceDict.pairCbid
+    const aAsk = priceDict.pairAask; 
+    const aBid = priceDict.pairAbid;
+    const bAsk = priceDict.pairBask; 
+    const bBid = priceDict.pairBbid;
+    const cAsk = priceDict.pairCask;
+    const cBid = priceDict.pairCbid;
 
-    console.log(pairA,aAsk*aBid)
+    let directionList = ["forward","reverse"];
+    for(direction of directionList){
+        let swap1;
+        let swap2;
+        let swap3;
+        let swap1Rate;
+        let swap2Rate;
+        let swap3Rate;
+
+        //starting with abase and swapping for aquote
+        if(direction === "forward"){
+            swap1 = aBase;
+            swap2 = aQuote;
+            swap1Rate = 1/aAsk
+            directionTrade1 = "baseToQuote";
+        }
+
+        if(direction === "reverse"){
+            swap1 = aQuote;
+            swap2 = aBase;
+            swap1Rate = aBid
+            directionTrade1 = "QuoteToBase";
+        }
+        contract1 = pairA
+        aquiredCoinT1 = startingAmount * swap1Rate
+        console.log(pairA,startingAmount, aquiredCoinT1)
+
+
+
+    }
 }
 
 module.exports = {
