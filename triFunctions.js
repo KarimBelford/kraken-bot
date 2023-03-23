@@ -169,6 +169,12 @@ const calcSurfaceArb = async(pair,priceDict) => {
     const cAsk = priceDict.pairCask;
     const cBid = priceDict.pairCbid;
 
+    /*Trade rules
+        To go from base to qoute(left to right)
+            swaprate = bid
+        To go from qoute to base(right to left)
+            swaprate = 1/ask        
+     */
     let directionList = ["forward","reverse"];
     for(direction of directionList){
         let swap1;
@@ -182,19 +188,42 @@ const calcSurfaceArb = async(pair,priceDict) => {
         if(direction === "forward"){
             swap1 = aBase;
             swap2 = aQuote;
-            swap1Rate = 1/aAsk
+            swap1Rate = aBid
             directionTrade1 = "baseToQuote";
         }
-
         if(direction === "reverse"){
             swap1 = aQuote;
             swap2 = aBase;
-            swap1Rate = aBid
+            swap1Rate = 1/aAsk
             directionTrade1 = "QuoteToBase";
         }
         contract1 = pairA
         aquiredCoinT1 = startingAmount * swap1Rate
-        console.log(pairA,startingAmount, aquiredCoinT1)
+
+        //check if aQoute is in pairB
+        if(direction === "forward"){
+            if(aQuote=== bQuote && calculated ===0){
+                swap2Rate = 1/bAsk
+                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                directionTrade2 = "quoteToBase"
+                contract2 = pairB
+
+                if(bBase===cBase){
+                    swap3 = cBase
+                    swap3Rate = cBid
+                    directionTrade3 = "baseToQuote"
+                    contract3 = pairC
+                }else{
+                    swap3 = cQuote
+                    swap3Rate = 1/cAsk
+                    directionTrade3 = "quoteToBase"
+                    contract3 = pairC
+                }
+                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                calculated = 1
+            }
+            
+        }
 
 
 
