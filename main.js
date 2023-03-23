@@ -6,7 +6,8 @@ const {
     getTriangularPairs,
     getPairPrices,
     calcSurfaceArb
-} = require('./triFunctions')
+} = require('./triFunctions');
+const { Console } = require('console');
 
 const key = '...'; // API Key
 const secret = '...'; // API Private Key
@@ -61,13 +62,19 @@ const step2 = async() => {
     let structuredPairs = await readJsonFile('./arbitragePairs.json')
     let pricedata = await getSymbols(priceDataUrl)
     let structuredPrices = {}
+
     for(const key in structuredPairs){
+     
         let pricesDict = await getPairPrices(structuredPairs[key],pricedata)
         
         if(pricesDict!==0){
           structuredPrices[key] = pricesDict
-          let surfaceArb = calcSurfaceArb(structuredPairs[key],pricesDict)
+          let surfaceArb = await calcSurfaceArb(structuredPairs[key],pricesDict)
+          if(surfaceArb!==0){
+            console.log(surfaceArb)
+          }
         }
+      
     }
 
 }

@@ -146,9 +146,9 @@ const calcSurfaceArb = async(pair,priceDict) => {
     let directionTrade1 = "";
     let directionTrade2 = "";
     let directionTrade3 = "";
-    let aquiredCoinT1 = 0;
-    let aquiredCoinT2 = 0;
-    let aquiredCoinT3 = 0;
+    let acquiredCoinT1 = 0;
+    let acquiredCoinT2 = 0;
+    let acquiredCoinT3 = 0;
     let calculated = 0;
     //pair info
     const aBase = pair.aBase;
@@ -198,14 +198,14 @@ const calcSurfaceArb = async(pair,priceDict) => {
             directionTrade1 = "QuoteToBase";
         }
         contract1 = pairA
-        aquiredCoinT1 = startingAmount * swap1Rate
+        acquiredCoinT1 = startingAmount * swap1Rate
 
         
         if(direction === "forward"){
             //Scenario 1 check if aQoute === bQoute
             if(aQuote=== bQuote && calculated ===0){
                 swap2Rate = 1/bAsk
-                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
                 contract2 = pairB
 
@@ -220,12 +220,12 @@ const calcSurfaceArb = async(pair,priceDict) => {
                     directionTrade3 = "quoteToBase"
                     contract3 = pairC
                 }
-                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 2 check if aQoute === bBase
             }else if(aQuote === bBase && calculated ===0){
                 swap2Rate = bBid
-                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
                 contract2 = pairB
 
@@ -240,12 +240,12 @@ const calcSurfaceArb = async(pair,priceDict) => {
                     directionTrade3 = "quoteToBase"
                     contract3 = pairC
                 }
-                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 3 check if aQoute === cQoute
             }else if(aQuote=== cQuote && calculated ===0){
                 swap2Rate = 1/cAsk
-                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
                 contract2 = pairC
 
@@ -261,12 +261,12 @@ const calcSurfaceArb = async(pair,priceDict) => {
                     contract3 = pairB
                 }
 
-                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 4 aQoute === cBase
             }else{
                 swap2Rate = cBid
-                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
                 contract2 = pairC
 
@@ -281,7 +281,7 @@ const calcSurfaceArb = async(pair,priceDict) => {
                     directionTrade3 = "quoteToBase"
                     contract3 = pairB
                 }
-                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             }
             
@@ -290,7 +290,7 @@ const calcSurfaceArb = async(pair,priceDict) => {
             //Scenario 1 check if aBase === bQoute
             if(aBase=== bQuote && calculated ===0){
                 swap2Rate = 1/bAsk
-                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
                 contract2 = pairB
 
@@ -305,12 +305,12 @@ const calcSurfaceArb = async(pair,priceDict) => {
                     directionTrade3 = "quoteToBase"
                     contract3 = pairC
                 }
-                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 2 check if aQoute === bBase
             }else if(aBase === bBase && calculated ===0){
                 swap2Rate = bBid
-                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
                 contract2 = pairB
 
@@ -325,12 +325,12 @@ const calcSurfaceArb = async(pair,priceDict) => {
                     directionTrade3 = "quoteToBase"
                     contract3 = pairC
                 }
-                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 3 check if aQoute === cQoute
             }else if(aBase=== cQuote && calculated ===0){
                 swap2Rate = 1/cAsk
-                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
                 contract2 = pairC
 
@@ -346,12 +346,12 @@ const calcSurfaceArb = async(pair,priceDict) => {
                     contract3 = pairB
                 }
 
-                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 4 aQoute === cBase
             }else{
                 swap2Rate = cBid
-                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
                 contract2 = pairC
 
@@ -366,17 +366,52 @@ const calcSurfaceArb = async(pair,priceDict) => {
                     directionTrade3 = "quoteToBase"
                     contract3 = pairB
                 }
-                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             }
-            if(direction==="reverse"){
-                console.log(direction,pairA,pairB,pairC,startingAmount,aquiredCoinT3)
-            
-            }
-            // console.log(direction,pairA,pairB,pairC,startingAmount,aquiredCoinT3)
+           
+            // console.log(direction,pairA,pairB,pairC,startingAmount,acquiredCoinT3)
             
         }
+        //calculate profit
+
+        let profitLoss = acquiredCoinT3 - startingAmount;
+        let profitLossPercent = profitLoss!==0?(profitLoss/startingAmount)*100:0;    
+        let trade1Details = `Start with ${startingAmount} ${swap1}. Swap at ${swap1Rate} for ${acquiredCoinT1} ${swap2}`
+        let trade2Details = `Swap ${acquiredCoinT1} ${swap2} at ${swap2Rate} for ${acquiredCoinT2} ${swap3}`
+        let trade3Details = `Swap ${acquiredCoinT2} ${swap3} at ${swap3Rate} for ${acquiredCoinT3} ${swap1}`
+        
+        if(profitLossPercent>minSurfaceRate){
+            surfaceRateDict = {
+                "swap1": swap1,
+                "swap2": swap2,
+                "swap3": swap3,
+                "contract1": contract1,
+                "contract2": contract2,
+                "contract3": contract3,
+                "directionTrade1": directionTrade1,
+                "directionTrade2": directionTrade2,
+                "directionTrade3": directionTrade3,
+                "startingAmount": startingAmount,
+                "acquiredCoinT1": acquiredCoinT1,
+                "acquiredCoinT2": acquiredCoinT2,
+                "acquiredCoinT3": acquiredCoinT3,
+                "swap1Rate": swap1Rate,
+                "swap2Rate": swap2Rate,
+                "swap3Rate": swap3Rate,
+                "profitLoss": profitLoss,
+                "profitLossPercent": profitLossPercent,
+                "direction": direction,
+                "trade_description_1": trade1Details,
+                "trade_description_2": trade2Details,
+                "trade_description_3": trade3Details
+            }
+
+            return surfaceRateDict
+        }
     }
+    return 0
+
 }
 
 module.exports = {
