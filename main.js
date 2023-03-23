@@ -72,10 +72,11 @@ const step2 = async() => {
 
 }
 
-step2()
-//logPairs()
+
 
 const main = async() => {
-    
+  step2()
+  //logPairs()
 }
 
+main()

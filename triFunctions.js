@@ -200,8 +200,9 @@ const calcSurfaceArb = async(pair,priceDict) => {
         contract1 = pairA
         aquiredCoinT1 = startingAmount * swap1Rate
 
-        //check if aQoute is in pairB
+        
         if(direction === "forward"){
+            //Scenario 1 check if aQoute === bQoute
             if(aQuote=== bQuote && calculated ===0){
                 swap2Rate = 1/bAsk
                 aquiredCoinT2 = aquiredCoinT1 * swap2Rate
@@ -221,12 +222,160 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 }
                 aquiredCoinT3 = aquiredCoinT2 * swap3Rate
                 calculated = 1
+            //Scenario 2 check if aQoute === bBase
+            }else if(aQuote === bBase && calculated ===0){
+                swap2Rate = bBid
+                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                directionTrade2 = "baseToQuote"
+                contract2 = pairB
+
+                if(bQuote===cBase){
+                    swap3 = cBase
+                    swap3Rate = cBid
+                    directionTrade3 = "baseToQuote"
+                    contract3 = pairC
+                }else{
+                    swap3 = cQuote
+                    swap3Rate = 1/cAsk
+                    directionTrade3 = "quoteToBase"
+                    contract3 = pairC
+                }
+                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                calculated = 1
+            //Scenario 3 check if aQoute === cQoute
+            }else if(aQuote=== cQuote && calculated ===0){
+                swap2Rate = 1/cAsk
+                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                directionTrade2 = "quoteToBase"
+                contract2 = pairC
+
+                if(cBase===bBase){
+                    swap3 = bBase
+                    swap3Rate = bBid
+                    directionTrade3 = "baseToQuote"
+                    contract3 = pairB
+                }else{
+                    swap3 = bQuote
+                    swap3Rate = 1/bAsk
+                    directionTrade3 = "quoteToBase"
+                    contract3 = pairB
+                }
+
+                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                calculated = 1
+            //Scenario 4 aQoute === cBase
+            }else{
+                swap2Rate = cBid
+                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                directionTrade2 = "baseToQuote"
+                contract2 = pairC
+
+                if(cQuote===bBase){
+                    swap3 = bBase
+                    swap3Rate = bBid
+                    directionTrade3 = "baseToQuote"
+                    contract3 = pairB
+                }else{
+                    swap3 = bQuote
+                    swap3Rate = 1/bAsk
+                    directionTrade3 = "quoteToBase"
+                    contract3 = pairB
+                }
+                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                calculated = 1
             }
             
         }
+        if(direction === "reverse"){
+            //Scenario 1 check if aBase === bQoute
+            if(aBase=== bQuote && calculated ===0){
+                swap2Rate = 1/bAsk
+                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                directionTrade2 = "quoteToBase"
+                contract2 = pairB
 
+                if(bBase===cBase){
+                    swap3 = cBase
+                    swap3Rate = cBid
+                    directionTrade3 = "baseToQuote"
+                    contract3 = pairC
+                }else{
+                    swap3 = cQuote
+                    swap3Rate = 1/cAsk
+                    directionTrade3 = "quoteToBase"
+                    contract3 = pairC
+                }
+                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                calculated = 1
+            //Scenario 2 check if aQoute === bBase
+            }else if(aBase === bBase && calculated ===0){
+                swap2Rate = bBid
+                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                directionTrade2 = "baseToQuote"
+                contract2 = pairB
 
+                if(bQuote===cBase){
+                    swap3 = cBase
+                    swap3Rate = cBid
+                    directionTrade3 = "baseToQuote"
+                    contract3 = pairC
+                }else{
+                    swap3 = cQuote
+                    swap3Rate = 1/cAsk
+                    directionTrade3 = "quoteToBase"
+                    contract3 = pairC
+                }
+                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                calculated = 1
+            //Scenario 3 check if aQoute === cQoute
+            }else if(aBase=== cQuote && calculated ===0){
+                swap2Rate = 1/cAsk
+                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                directionTrade2 = "quoteToBase"
+                contract2 = pairC
 
+                if(cBase===bBase){
+                    swap3 = bBase
+                    swap3Rate = bBid
+                    directionTrade3 = "baseToQuote"
+                    contract3 = pairB
+                }else{
+                    swap3 = bQuote
+                    swap3Rate = 1/bAsk
+                    directionTrade3 = "quoteToBase"
+                    contract3 = pairB
+                }
+
+                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                calculated = 1
+            //Scenario 4 aQoute === cBase
+            }else{
+                swap2Rate = cBid
+                aquiredCoinT2 = aquiredCoinT1 * swap2Rate
+                directionTrade2 = "baseToQuote"
+                contract2 = pairC
+
+                if(cQuote===bBase){
+                    swap3 = bBase
+                    swap3Rate = bBid
+                    directionTrade3 = "baseToQuote"
+                    contract3 = pairB
+                }else{
+                    swap3 = bQuote
+                    swap3Rate = 1/bAsk
+                    directionTrade3 = "quoteToBase"
+                    contract3 = pairB
+                }
+                aquiredCoinT3 = aquiredCoinT2 * swap3Rate
+                calculated = 1
+            }
+            if(direction==="reverse"){
+                console.log(direction,pairA,pairB,pairC,startingAmount,aquiredCoinT3)
+            
+            }
+            // console.log(direction,pairA,pairB,pairC,startingAmount,aquiredCoinT3)
+            
+        }
     }
 }
 
