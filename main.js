@@ -5,7 +5,8 @@ const {
     getSymbols,
     getTriangularPairs,
     getPairPrices,
-    calcSurfaceArb
+    calcSurfaceArb,
+    getOrderbookDepth
 } = require('./triFunctions');
 const { Console } = require('console');
 
@@ -58,7 +59,7 @@ const readJsonFile = (filename) => {
     });
   };
   
-const step2 = async() => {
+const surfaceArbInfo = async() => {
     let structuredPairs = await readJsonFile('./arbitragePairs.json')
     let pricedata = await getSymbols(priceDataUrl)
     let structuredPrices = {}
@@ -71,7 +72,7 @@ const step2 = async() => {
           structuredPrices[key] = pricesDict
           let surfaceArb = await calcSurfaceArb(structuredPairs[key],pricesDict)
           if(surfaceArb!==0){
-            console.log(surfaceArb)
+            getOrderbookDepth(surfaceArb)
           }
         }
       
@@ -82,8 +83,8 @@ const step2 = async() => {
 
 
 const main = async() => {
-  //step2()
-  logPairs()
+  surfaceArbInfo()
+  //logPairs()
 }
 
 main()

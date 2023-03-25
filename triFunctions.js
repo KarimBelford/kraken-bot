@@ -1,6 +1,7 @@
 const axios = require('axios');
 const pairsUrl = 'https://api.kraken.com/0/public/AssetPairs'
 const priceDataUrl = 'https://api.kraken.com/0/public/Ticker'
+const orderbookURL ='https://api.kraken.com/0/public/Depth'
 //get array of pair symbols 
 const getSymbols = async (url) => {
     try {   
@@ -12,7 +13,7 @@ const getSymbols = async (url) => {
       console.error('Error getting symbols: ', error);
     }
 };
-
+//get available triangular arbitrage pairs
 const getTriangularPairs = async (url) => {
     try {   
         const response = await axios.get(url);
@@ -24,7 +25,7 @@ const getTriangularPairs = async (url) => {
         let pairList = triangularPairs
         let duplicates = {}
         let triangularPairsList = {}
-       // pairList = triangularPairs.slice(0,100) 
+       pairList = triangularPairs.slice(0,547) 
         for(const pairsA of pairList){
             let aBase = pairsA[0]
             let aQuote = pairsA[1]
@@ -97,7 +98,7 @@ const getTriangularPairs = async (url) => {
 
     
 };
-
+//get the price info for all pairs 
 const getPairPrices = async(pair,priceData) => {
     let pairA = pair.pairA
     let pairB = pair.pairB
@@ -135,7 +136,7 @@ const getPairPrices = async(pair,priceData) => {
         }
     }
 }
-
+//calculate if there is a surface arbitrage opertunity 
 const calcSurfaceArb = async(pair,priceDict) => {
     let startingAmount = 1;
     let minSurfaceRate = 0;
@@ -413,11 +414,30 @@ const calcSurfaceArb = async(pair,priceDict) => {
     return 0
 
 }
+//get depth of order book for triangular pair
+const getOrderbookDepth = async(surfaceArb) => {
+    let {swap1,contract1,contract2,contract3} = surfaceArb
+
+    try {   
+        const orderbookURL1 =`https://api.kraken.com/0/public/Depth?pair=${contract1}&count=20`
+        const orderbookURL2 =`https://api.kraken.com/0/public/Depth?pair=${contract2}&count=20`
+        const orderbookURL3 =`https://api.kraken.com/0/public/Depth?pair=${contract3}&count=20`
+        const response = await axios.get(orderbookURL1);
+        const orderbookDepth = response.data.result;
+       console.log(orderbookDepth)
+        return orderbookDepth;
+        
+      } catch (error) {
+        console.error('Error getting orderbook: ', error);
+      }
+}
+
 
 module.exports = {
     getSymbols,
     getTriangularPairs,
     getPairPrices,
-    calcSurfaceArb
+    calcSurfaceArb,
+    getOrderbookDepth
 }
 
