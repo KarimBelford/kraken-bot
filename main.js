@@ -6,7 +6,7 @@ const {
     getTriangularPairs,
     getPairPrices,
     calcSurfaceArb,
-    getOrderbookData
+    getOrderBookData
 } = require('./triFunctions');
 const { Console } = require('console');
 
@@ -72,7 +72,7 @@ const surfaceArbInfo = async() => {
           structuredPrices[key] = pricesDict
           let surfaceArb = await calcSurfaceArb(structuredPairs[key],pricesDict)
           if(surfaceArb!==0){
-            getOrderbookData(surfaceArb)
+            getOrderBookData(surfaceArb)
           }
         }
       

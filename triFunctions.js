@@ -196,7 +196,7 @@ const calcSurfaceArb = async(pair,priceDict) => {
             swap1 = aQuote;
             swap2 = aBase;
             swap1Rate = 1/aAsk
-            directionTrade1 = "QuoteToBase";
+            directionTrade1 = "quoteToBase";
         }
         contract1 = pairA
         acquiredCoinT1 = startingAmount * swap1Rate
@@ -415,15 +415,16 @@ const calcSurfaceArb = async(pair,priceDict) => {
 
 }
 //get depth of order book for triangular pair
-const getOrderbookData = async(surfaceArb) => {
+const getOrderBookData = async(surfaceArb) => {
     let {swap1,directionTrade1,contract1,contract2,contract3} = surfaceArb
-    console.log(directionTrade1)
+    console.log(contract1)
 
     try {   
         
-        const {bidPriceDepth:bidPriceDepth1,askPriceDepth1} = await getOrderbookDepth(contract1)
+        const {bidPriceDepth:bidPriceDepth1,askPriceDepth1} = await getOrderBookDepth(contract1)
         console.log(bidPriceDepth1)
-
+        const priceUpdate1 = reformatData(askPriceDepth1,bidPriceDepth1,directionTrade1)
+        console.log(priceUpdate1,directionTrade1)
         // const orderbookDepth2 = await getOrderbookDepth(contract2)
         // const orderbookDepth3 = await getOrderbookDepth(contract3)
        
@@ -434,7 +435,7 @@ const getOrderbookData = async(surfaceArb) => {
       }
 }
 
-const getOrderbookDepth = async(contract) => {
+const getOrderBookDepth = async(contract) => {
     const orderbookURL =`https://api.kraken.com/0/public/Depth?pair=${contract}&count=20`
     const response = await axios.get(orderbookURL);
     const orderbookDepth = response.data.result;
@@ -446,8 +447,26 @@ const getOrderbookDepth = async(contract) => {
     }
 }
 
-const reformatData = async(prices,contractDirection) => {
-    
+const reformatData = (askPriceData,bidPriceData,contractDirection) => {
+    let priceList = []
+    if(contractDirection === 'baseToQuote'){
+        for(price of askPriceData){
+            let askPrice = Number(price[0])
+            let newPrice = askPrice != 0? 1/askPrice:0
+            let newQuantity = Number(price[1])*askPrice
+            priceList.push([newPrice,newQuantity])
+        }
+    } 
+    if(contractDirection === 'quoteToBase'){
+        for(price of bidPriceData){
+            let bidPrice = Number(price[0])
+            let newPrice = bidPrice != 0? bidPrice:0
+            let newQuantity = Number(price[1])
+            priceList.push([newPrice,newQuantity])
+        }
+    }
+    return priceList
+
 }
 
 
@@ -456,6 +475,6 @@ module.exports = {
     getTriangularPairs,
     getPairPrices,
     calcSurfaceArb,
-    getOrderbookData
+    getOrderBookData
 }
 
