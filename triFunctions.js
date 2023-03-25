@@ -415,21 +415,39 @@ const calcSurfaceArb = async(pair,priceDict) => {
 
 }
 //get depth of order book for triangular pair
-const getOrderbookDepth = async(surfaceArb) => {
-    let {swap1,contract1,contract2,contract3} = surfaceArb
+const getOrderbookData = async(surfaceArb) => {
+    let {swap1,directionTrade1,contract1,contract2,contract3} = surfaceArb
+    console.log(directionTrade1)
 
     try {   
-        const orderbookURL1 =`https://api.kraken.com/0/public/Depth?pair=${contract1}&count=20`
-        const orderbookURL2 =`https://api.kraken.com/0/public/Depth?pair=${contract2}&count=20`
-        const orderbookURL3 =`https://api.kraken.com/0/public/Depth?pair=${contract3}&count=20`
-        const response = await axios.get(orderbookURL1);
-        const orderbookDepth = response.data.result;
-       console.log(orderbookDepth)
-        return orderbookDepth;
+        
+        const {bidPriceDepth:bidPriceDepth1,askPriceDepth1} = await getOrderbookDepth(contract1)
+        console.log(bidPriceDepth1)
+
+        // const orderbookDepth2 = await getOrderbookDepth(contract2)
+        // const orderbookDepth3 = await getOrderbookDepth(contract3)
+       
+        return ;
         
       } catch (error) {
         console.error('Error getting orderbook: ', error);
       }
+}
+
+const getOrderbookDepth = async(contract) => {
+    const orderbookURL =`https://api.kraken.com/0/public/Depth?pair=${contract}&count=20`
+    const response = await axios.get(orderbookURL);
+    const orderbookDepth = response.data.result;
+    const {asks:askPriceDepth, bids:bidPriceDepth} = orderbookDepth[contract];
+
+    return {
+        bidPriceDepth,
+        askPriceDepth
+    }
+}
+
+const reformatData = async(prices,contractDirection) => {
+    
 }
 
 
@@ -438,6 +456,6 @@ module.exports = {
     getTriangularPairs,
     getPairPrices,
     calcSurfaceArb,
-    getOrderbookDepth
+    getOrderbookData
 }
 
