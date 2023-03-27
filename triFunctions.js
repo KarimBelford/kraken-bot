@@ -138,7 +138,7 @@ const getPairPrices = async(pair,priceData) => {
 }
 //calculate if there is a surface arbitrage opertunity 
 const calcSurfaceArb = async(pair,priceDict) => {
-    let startingAmount = 1;
+    let startingAmount = 100;
     let minSurfaceRate = 0;
     let surfaceRateDict = {};
     let contract1;
@@ -198,6 +198,7 @@ const calcSurfaceArb = async(pair,priceDict) => {
             swap1Rate = 1/aAsk
             directionTrade1 = "quoteToBase";
         }
+        
         contract1 = pairA
         acquiredCoinT1 = startingAmount * swap1Rate
 
@@ -224,7 +225,8 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 2 check if aQoute === bBase
-            }else if(aQuote === bBase && calculated ===0){
+            } 
+            if(aQuote === bBase && calculated ===0){
                 swap2Rate = bBid
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
@@ -244,7 +246,8 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 3 check if aQoute === cQoute
-            }else if(aQuote=== cQuote && calculated ===0){
+            }
+            if(aQuote=== cQuote && calculated ===0){
                 swap2Rate = 1/cAsk
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
@@ -265,7 +268,8 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 4 aQoute === cBase
-            }else{
+            }
+            if(aBase === cBase && calculated ===0){
                 swap2Rate = cBid
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
@@ -288,8 +292,10 @@ const calcSurfaceArb = async(pair,priceDict) => {
             
         }
         if(direction === "reverse"){
+            
             //Scenario 1 check if aBase === bQoute
-            if(aBase=== bQuote && calculated ===0){
+            if(aBase === bQuote && calculated ===0){
+
                 swap2Rate = 1/bAsk
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
@@ -309,7 +315,8 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 2 check if aQoute === bBase
-            }else if(aBase === bBase && calculated ===0){
+            }
+            if(aBase === bBase && calculated ===0){
                 swap2Rate = bBid
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
@@ -329,12 +336,12 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             //Scenario 3 check if aQoute === cQoute
-            }else if(aBase=== cQuote && calculated ===0){
+            } 
+            if(aBase === cQuote && calculated ===0){
                 swap2Rate = 1/cAsk
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
                 contract2 = pairC
-
                 if(cBase===bBase){
                     swap3 = bBase
                     swap3Rate = bBid
@@ -349,13 +356,13 @@ const calcSurfaceArb = async(pair,priceDict) => {
 
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
-            //Scenario 4 aQoute === cBase
-            }else{
+            //Scenario 4 aBase === cBase
+            }
+            if(aBase === cBase && calculated === 0){                
                 swap2Rate = cBid
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
                 contract2 = pairC
-
                 if(cQuote===bBase){
                     swap3 = bBase
                     swap3Rate = bBid
@@ -370,20 +377,18 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
                 calculated = 1
             }
-           
-            // console.log(direction,pairA,pairB,pairC,startingAmount,acquiredCoinT3)
-            
+                       
         }
         //calculate profit
-
         let profitLoss = acquiredCoinT3 - startingAmount;
         let profitLossPercent = profitLoss!==0?(profitLoss/startingAmount)*100:0;    
         let trade1Details = `Start with ${startingAmount} ${swap1}. Swap at ${swap1Rate} for ${acquiredCoinT1} ${swap2}`
         let trade2Details = `Swap ${acquiredCoinT1} ${swap2} at ${swap2Rate} for ${acquiredCoinT2} ${swap3}`
         let trade3Details = `Swap ${acquiredCoinT2} ${swap3} at ${swap3Rate} for ${acquiredCoinT3} ${swap1}`
-        
-        if(profitLossPercent>minSurfaceRate){
+        if(profitLossPercent>-1){
+            
             surfaceRateDict = {
+                "startingAmount":startingAmount,
                 "swap1": swap1,
                 "swap2": swap2,
                 "swap3": swap3,
@@ -403,9 +408,9 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 "profitLoss": profitLoss,
                 "profitLossPercent": profitLossPercent,
                 "direction": direction,
-                "trade_description_1": trade1Details,
-                "trade_description_2": trade2Details,
-                "trade_description_3": trade3Details
+                "trade1Details": trade1Details,
+                "trade2Details": trade2Details,
+                "trade3Details": trade3Details
             }
 
             return surfaceRateDict
@@ -416,20 +421,46 @@ const calcSurfaceArb = async(pair,priceDict) => {
 }
 //get depth of order book for triangular pair
 const getOrderBookData = async(surfaceArb) => {
-    let {swap1,directionTrade1,contract1,contract2,contract3} = surfaceArb
-    console.log(contract1)
-
+    let {startingAmount,trade2Details,trade1Details,trade3Details,swap1,swap2,direction,directionTrade1,directionTrade2,directionTrade3,contract1,contract2,contract3} = surfaceArb
+   
     try {   
         
-        const {bidPriceDepth:bidPriceDepth1,askPriceDepth1} = await getOrderBookDepth(contract1)
-        console.log(bidPriceDepth1)
-        const priceUpdate1 = reformatData(askPriceDepth1,bidPriceDepth1,directionTrade1)
-        console.log(priceUpdate1,directionTrade1)
-        // const orderbookDepth2 = await getOrderbookDepth(contract2)
-        // const orderbookDepth3 = await getOrderbookDepth(contract3)
-       
-        return ;
+        const {bidPriceDepth:bidPriceDepth1,askPriceDepth:askPriceDepth1} = await getOrderBookDepth(contract1)
+        const {bidPriceDepth:bidPriceDepth2,askPriceDepth:askPriceDepth2} = await getOrderBookDepth(contract2)
+        const {bidPriceDepth:bidPriceDepth3,askPriceDepth:askPriceDepth3} = await getOrderBookDepth(contract3)
+      
+        const priceReformat1 = reformatData(askPriceDepth1,bidPriceDepth1,directionTrade1)
+        const priceReformat2 = reformatData(askPriceDepth2,bidPriceDepth2,directionTrade2)
+        const priceReformat3 = reformatData(askPriceDepth3,bidPriceDepth3,directionTrade3)
         
+        
+        let coinT1 = getCoin(startingAmount,priceReformat1)
+        
+        let coinT2 = getCoin(coinT1,priceReformat2)
+      
+        let coinT3 = getCoin(coinT2,priceReformat3)
+       
+        let profitLoss = coinT3 - startingAmount;
+        let profitLossPercent = profitLoss!==0?(profitLoss/startingAmount)*100:0;
+        
+        if(profitLossPercent>0){
+            let orderBookDict = {
+                "profitLoss": profitLoss,
+                "profitLossPercent": profitLossPercent,
+                "contract1": contract1,
+                "contract2": contract2,
+                "contract3": contract3,
+                "directionTrade1": directionTrade1,
+                "directionTrade2": directionTrade2,
+                "directionTrade3": directionTrade3,
+                "trade1Details": trade1Details,
+                "trade2Details": trade2Details,
+                "trade3Details": trade3Details
+            }
+            return orderBookDict
+        }else{
+            return{}
+        }
       } catch (error) {
         console.error('Error getting orderbook: ', error);
       }
@@ -449,24 +480,60 @@ const getOrderBookDepth = async(contract) => {
 
 const reformatData = (askPriceData,bidPriceData,contractDirection) => {
     let priceList = []
-    if(contractDirection === 'baseToQuote'){
-        for(price of askPriceData){
-            let askPrice = Number(price[0])
-            let newPrice = askPrice != 0? 1/askPrice:0
-            let newQuantity = Number(price[1])*askPrice
+
+    if(contractDirection === 'quoteToBase'){
+        for(let price of bidPriceData){
+            let bidPrice = Number(price[0])
+            let newPrice = bidPrice != 0? 1/bidPrice:0
+            let newQuantity = Number(price[1])*bidPrice
             priceList.push([newPrice,newQuantity])
         }
+        
     } 
-    if(contractDirection === 'quoteToBase'){
-        for(price of bidPriceData){
-            let bidPrice = Number(price[0])
-            let newPrice = bidPrice != 0? bidPrice:0
+    if(contractDirection === 'baseToQuote'){
+        for(let price of askPriceData){
+            let askPrice = Number(price[0])
+            let newPrice = askPrice != 0? askPrice:0
             let newQuantity = Number(price[1])
             priceList.push([newPrice,newQuantity])
         }
     }
     return priceList
+}
 
+const getCoin = (amountIn,orderbook) => {
+
+    let balance = amountIn;
+    let quantityBought = 0;
+    let acquiredCoin = 0;
+    let counts = 0;
+    let amountBought = 0
+
+    for(let level of orderbook){
+
+        let levelPrice = level[0]
+        let levelQuantity = level[1]
+
+        if(balance<=levelQuantity){
+            quantityBought = balance
+            balance = 0
+            amountBought = quantityBought*levelPrice
+
+        }
+        if(balance>levelQuantity){
+            quantityBought = levelQuantity
+            balance = balance - quantityBought
+            amountBought = quantityBought*levelPrice
+        }
+        acquiredCoin = acquiredCoin + amountBought
+        if(balance ===0){
+            return acquiredCoin
+        }
+        counts +=1
+        if(counts === orderbook.length){
+            return 0
+        }
+    }
 }
 
 

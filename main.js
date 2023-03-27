@@ -72,7 +72,9 @@ const surfaceArbInfo = async() => {
           structuredPrices[key] = pricesDict
           let surfaceArb = await calcSurfaceArb(structuredPairs[key],pricesDict)
           if(surfaceArb!==0){
-            getOrderBookData(surfaceArb)
+            const realRateData = await getOrderBookData(surfaceArb)
+            console.log(realRateData)
+            
           }
         }
       
