@@ -25,7 +25,6 @@ const getTriangularPairs = async (url) => {
         let pairList = triangularPairs
         let duplicates = {}
         let triangularPairsList = {}
-       pairList = triangularPairs.slice(0,547) 
         for(const pairsA of pairList){
             let aBase = pairsA[0]
             let aQuote = pairsA[1]
@@ -443,7 +442,7 @@ const getOrderBookData = async(surfaceArb) => {
         let profitLoss = coinT3 - startingAmount;
         let profitLossPercent = profitLoss!==0?(profitLoss/startingAmount)*100:0;
         
-        if(profitLossPercent>0){
+        if(profitLossPercent>-1){
             let orderBookDict = {
                 "profitLoss": profitLoss,
                 "profitLossPercent": profitLossPercent,
@@ -455,7 +454,8 @@ const getOrderBookData = async(surfaceArb) => {
                 "directionTrade3": directionTrade3,
                 "trade1Details": trade1Details,
                 "trade2Details": trade2Details,
-                "trade3Details": trade3Details
+                "trade3Details": trade3Details,
+                "direction": direction,
             }
             return orderBookDict
         }else{
