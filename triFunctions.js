@@ -466,6 +466,7 @@ const getOrderBookData = async(surfaceArb) => {
       }
 }
 
+//extract lattest prices from orderbook
 const getOrderBookDepth = async(contract) => {
     const orderbookURL =`https://api.kraken.com/0/public/Depth?pair=${contract}&count=20`
     const response = await axios.get(orderbookURL);
@@ -478,6 +479,7 @@ const getOrderBookDepth = async(contract) => {
     }
 }
 
+//reformat price data to get prices of the contract direction 
 const reformatData = (askPriceData,bidPriceData,contractDirection) => {
     let priceList = []
 
@@ -501,6 +503,7 @@ const reformatData = (askPriceData,bidPriceData,contractDirection) => {
     return priceList
 }
 
+//funtion that goes through orderbook levels until desired amount of coin is bought 
 const getCoin = (amountIn,orderbook) => {
 
     let balance = amountIn;
