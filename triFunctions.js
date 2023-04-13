@@ -5,6 +5,7 @@ const priceDataUrl = 'https://api.kraken.com/0/public/Ticker'
 const orderbookURL ='https://api.kraken.com/0/public/Depth'
 
  // API Private Key
+ 
 const kraken = new KrakenClient(key, secret);
 //get array of pair symbols 
 const getSymbols = async (url) => {

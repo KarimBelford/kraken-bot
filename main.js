@@ -12,8 +12,7 @@ const {
 } = require('./triFunctions');
 const { sub2ws } = require('./wsData');
 
-const key = '7T7NAVdA4j/KrnD9EaIDG2JFn5qJW20CbjgKZU6Fha2OMByRktcEdXwb'; // API Key
-const secret = 'x37vmW7KskvyyMEnCqoUCObiSGeZhcUqy+oYJ+bEe3GwaXVwL42351vfmapUAXvl3Oz9kKXY9+AmNHCELrHvUw=='; // API Private Key
+
 const kraken = new KrakenClient(key, secret);
 
 const pairsUrl = 'https://api.kraken.com/0/public/AssetPairs'
