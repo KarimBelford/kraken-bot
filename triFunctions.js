@@ -1,7 +1,11 @@
 const axios = require('axios');
+const KrakenClient = require('kraken-api')
 const pairsUrl = 'https://api.kraken.com/0/public/AssetPairs'
 const priceDataUrl = 'https://api.kraken.com/0/public/Ticker'
 const orderbookURL ='https://api.kraken.com/0/public/Depth'
+
+ // API Private Key
+const kraken = new KrakenClient(key, secret);
 //get array of pair symbols 
 const getSymbols = async (url) => {
     try {   
@@ -17,11 +21,12 @@ const getSymbols = async (url) => {
 const getTriangularPairs = async (url) => {
     try {   
         const response = await axios.get(url);
-        const symbols = response.data.result;
+        const symbols = response.data.result;        
         let triangularPairs = []
         for (const [coin, info] of Object.entries(symbols)) {
-            triangularPairs.push([info.base,info.quote])        
+            triangularPairs.push([info.base,info.quote,info.altname])        
         }
+        
         let pairList = triangularPairs
         let duplicates = {}
         let triangularPairsList = {}
@@ -74,9 +79,13 @@ const getTriangularPairs = async (url) => {
                                             "cBase": cBase,
                                             "cQuote": cQuote,
                                             "pairA": pairAsymbol,
+                                            "pairAAltName":pairsA[2],
                                             "pairB": pairBsymbol,
+                                            "pairBAltName":pairsB[2],
                                             "pairC": pairCsymbol,
+                                            "pairCAltName":pairsC[2],
                                         }
+                        
                                         triangularPairsList[uniqueItem] = pairInfo;                                       
                                     }
                                     
@@ -97,6 +106,7 @@ const getTriangularPairs = async (url) => {
 
     
 };
+
 //get the price info for all pairs 
 const getPairPrices = async(pair,priceData) => {
     let pairA = pair.pairA
@@ -137,12 +147,14 @@ const getPairPrices = async(pair,priceData) => {
 }
 //calculate if there is a surface arbitrage opertunity 
 const calcSurfaceArb = async(pair,priceDict) => {
-    let startingAmount = 100;
+    let startingAmount = 10000;
     let minSurfaceRate = 0;
     let surfaceRateDict = {};
     let contract1;
     let contract2;
     let contract3;
+    let contract2AltName;
+    let contract3AltName;
     let directionTrade1 = "";
     let directionTrade2 = "";
     let directionTrade3 = "";
@@ -158,9 +170,11 @@ const calcSurfaceArb = async(pair,priceDict) => {
     const cBase = pair.cBase;
     const cQuote = pair.cQuote;
     const pairA = pair.pairA;
+    const pairAName = pair.pairAAltName;
     const pairB = pair.pairB;
-    const pairC = pair.pairC;
-
+    const pairBName = pair.pairBAltName;
+    const pairC = pair.pairC
+    const pairCName = pair.pairCAltName;
     //price info
     const aAsk = priceDict.pairAask; 
     const aBid = priceDict.pairAbid;
@@ -200,25 +214,29 @@ const calcSurfaceArb = async(pair,priceDict) => {
         
         contract1 = pairA
         acquiredCoinT1 = startingAmount * swap1Rate
-
+       
         
         if(direction === "forward"){
+            
             //Scenario 1 check if aQoute === bQoute
-            if(aQuote=== bQuote && calculated ===0){
+            if(aQuote === bQuote && calculated ===0){
                 swap2Rate = 1/bAsk
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
+                contract2AltName = pairBName
                 contract2 = pairB
 
                 if(bBase===cBase){
                     swap3 = cBase
                     swap3Rate = cBid
                     directionTrade3 = "baseToQuote"
+                    contract3AltName = pairCName
                     contract3 = pairC
                 }else{
                     swap3 = cQuote
                     swap3Rate = 1/cAsk
                     directionTrade3 = "quoteToBase"
+                    contract3AltName = pairCName
                     contract3 = pairC
                 }
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
@@ -226,20 +244,24 @@ const calcSurfaceArb = async(pair,priceDict) => {
             //Scenario 2 check if aQoute === bBase
             } 
             if(aQuote === bBase && calculated ===0){
+                
                 swap2Rate = bBid
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
+                contract2AltName = pairBName
                 contract2 = pairB
 
                 if(bQuote===cBase){
                     swap3 = cBase
                     swap3Rate = cBid
                     directionTrade3 = "baseToQuote"
+                    contract3AltName = pairCName
                     contract3 = pairC
                 }else{
                     swap3 = cQuote
                     swap3Rate = 1/cAsk
                     directionTrade3 = "quoteToBase"
+                    contract3AltName = pairCName
                     contract3 = pairC
                 }
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
@@ -247,20 +269,24 @@ const calcSurfaceArb = async(pair,priceDict) => {
             //Scenario 3 check if aQoute === cQoute
             }
             if(aQuote=== cQuote && calculated ===0){
+               
                 swap2Rate = 1/cAsk
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
+                contract2AltName = pairCName
                 contract2 = pairC
 
                 if(cBase===bBase){
                     swap3 = bBase
                     swap3Rate = bBid
                     directionTrade3 = "baseToQuote"
+                    contract3AltName = pairBName
                     contract3 = pairB
                 }else{
                     swap3 = bQuote
                     swap3Rate = 1/bAsk
                     directionTrade3 = "quoteToBase"
+                    contract3AltName = pairBName
                     contract3 = pairB
                 }
 
@@ -272,17 +298,20 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 swap2Rate = cBid
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
+                contract2AltName = pairCName
                 contract2 = pairC
 
                 if(cQuote===bBase){
                     swap3 = bBase
                     swap3Rate = bBid
                     directionTrade3 = "baseToQuote"
+                    contract3AltName = pairBName
                     contract3 = pairB
                 }else{
                     swap3 = bQuote
                     swap3Rate = 1/bAsk
                     directionTrade3 = "quoteToBase"
+                    contract3AltName = pairBName
                     contract3 = pairB
                 }
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
@@ -298,17 +327,20 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 swap2Rate = 1/bAsk
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
+                contract2AltName = pairBName
                 contract2 = pairB
 
                 if(bBase===cBase){
                     swap3 = cBase
                     swap3Rate = cBid
                     directionTrade3 = "baseToQuote"
+                    contract3AltName = pairCName
                     contract3 = pairC
                 }else{
                     swap3 = cQuote
                     swap3Rate = 1/cAsk
                     directionTrade3 = "quoteToBase"
+                    contract3AltName = pairCName
                     contract3 = pairC
                 }
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
@@ -319,17 +351,20 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 swap2Rate = bBid
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
+                contract2AltName = pairBName
                 contract2 = pairB
 
                 if(bQuote===cBase){
                     swap3 = cBase
                     swap3Rate = cBid
                     directionTrade3 = "baseToQuote"
+                    contract3AltName = pairCName
                     contract3 = pairC
                 }else{
                     swap3 = cQuote
                     swap3Rate = 1/cAsk
                     directionTrade3 = "quoteToBase"
+                    contract3AltName = pairCName
                     contract3 = pairC
                 }
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
@@ -340,16 +375,19 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 swap2Rate = 1/cAsk
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "quoteToBase"
+                contract2AltName = pairCName
                 contract2 = pairC
                 if(cBase===bBase){
                     swap3 = bBase
                     swap3Rate = bBid
                     directionTrade3 = "baseToQuote"
+                    contract3AltName = pairBName
                     contract3 = pairB
                 }else{
                     swap3 = bQuote
                     swap3Rate = 1/bAsk
                     directionTrade3 = "quoteToBase"
+                    contract3AltName = pairBName
                     contract3 = pairB
                 }
 
@@ -361,16 +399,19 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 swap2Rate = cBid
                 acquiredCoinT2 = acquiredCoinT1 * swap2Rate
                 directionTrade2 = "baseToQuote"
+                contract2AltName = pairCName
                 contract2 = pairC
                 if(cQuote===bBase){
                     swap3 = bBase
                     swap3Rate = bBid
                     directionTrade3 = "baseToQuote"
+                    contract3AltName = pairBName
                     contract3 = pairB
                 }else{
                     swap3 = bQuote
                     swap3Rate = 1/bAsk
                     directionTrade3 = "quoteToBase"
+                    contract3AltName = pairBName
                     contract3 = pairB
                 }
                 acquiredCoinT3 = acquiredCoinT2 * swap3Rate
@@ -384,7 +425,7 @@ const calcSurfaceArb = async(pair,priceDict) => {
         let trade1Details = `Start with ${startingAmount} ${swap1}. Swap at ${swap1Rate} for ${acquiredCoinT1} ${swap2}`
         let trade2Details = `Swap ${acquiredCoinT1} ${swap2} at ${swap2Rate} for ${acquiredCoinT2} ${swap3}`
         let trade3Details = `Swap ${acquiredCoinT2} ${swap3} at ${swap3Rate} for ${acquiredCoinT3} ${swap1}`
-        if(profitLossPercent>-1){
+        if(profitLossPercent>0){
             
             surfaceRateDict = {
                 "startingAmount":startingAmount,
@@ -392,8 +433,11 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 "swap2": swap2,
                 "swap3": swap3,
                 "contract1": contract1,
+                "contract1AltName": pairAName,
                 "contract2": contract2,
+                "contract2AltName": contract2AltName,
                 "contract3": contract3,
+                "contract3AltName": contract3AltName,
                 "directionTrade1": directionTrade1,
                 "directionTrade2": directionTrade2,
                 "directionTrade3": directionTrade3,
@@ -404,14 +448,13 @@ const calcSurfaceArb = async(pair,priceDict) => {
                 "swap1Rate": swap1Rate,
                 "swap2Rate": swap2Rate,
                 "swap3Rate": swap3Rate,
-                "profitLoss": profitLoss,
                 "profitLossPercent": profitLossPercent,
                 "direction": direction,
                 "trade1Details": trade1Details,
                 "trade2Details": trade2Details,
                 "trade3Details": trade3Details
             }
-
+            
             return surfaceRateDict
         }
     }
@@ -420,7 +463,7 @@ const calcSurfaceArb = async(pair,priceDict) => {
 }
 //get depth of order book for triangular pair
 const getOrderBookData = async(surfaceArb) => {
-    let {startingAmount,trade2Details,trade1Details,trade3Details,swap1,swap2,direction,directionTrade1,directionTrade2,directionTrade3,contract1,contract2,contract3} = surfaceArb
+    let {startingAmount,trade2Details,trade1Details,trade3Details,contract1AltName,contract2AltName,contract3AltName,direction,directionTrade1,directionTrade2,directionTrade3,contract1,contract2,contract3,acquiredCoinT1,acquiredCoinT2,acquiredCoinT3} = surfaceArb
    
     try {   
         
@@ -442,13 +485,17 @@ const getOrderBookData = async(surfaceArb) => {
         let profitLoss = coinT3 - startingAmount;
         let profitLossPercent = profitLoss!==0?(profitLoss/startingAmount)*100:0;
         
-        if(profitLossPercent>-1){
+        if(profitLossPercent>0){
             let orderBookDict = {
+                "startingAmount":startingAmount,
                 "profitLoss": profitLoss,
                 "profitLossPercent": profitLossPercent,
-                "contract1": contract1,
-                "contract2": contract2,
-                "contract3": contract3,
+                "contract1": contract1AltName,
+                "contract2": contract2AltName,
+                "contract3": contract3AltName,
+                "aproxQuantityT1":acquiredCoinT1,
+                "aproxQuantityT2":acquiredCoinT2,
+                "aproxQuantityT3":acquiredCoinT3,
                 "directionTrade1": directionTrade1,
                 "directionTrade2": directionTrade2,
                 "directionTrade3": directionTrade3,
@@ -459,7 +506,7 @@ const getOrderBookData = async(surfaceArb) => {
             }
             return orderBookDict
         }else{
-            return{}
+            return 0
         }
       } catch (error) {
         console.error('Error getting orderbook: ', error);
@@ -539,12 +586,25 @@ const getCoin = (amountIn,orderbook) => {
     }
 }
 
+const placeOrder = async(contract,direction,qty) => {
+    const pair = contract;
+    const type = direction === 'quoteToBase'? 'buy':'sell';
+    const ordertype = 'limit';
+    const volume = qty;
+
+    console.log(pair,type,volume)
+
+    return qty
+
+}
+
 
 module.exports = {
     getSymbols,
     getTriangularPairs,
     getPairPrices,
     calcSurfaceArb,
-    getOrderBookData
+    getOrderBookData,
+    placeOrder,
 }
 
